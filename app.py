@@ -117,4 +117,4 @@ agent = CodeAgent(
 )
 
 
-GradioUI(agent).launch()
+GradioUI(agent).launch(share=True)
