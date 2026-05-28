@@ -10,6 +10,8 @@ from Gradio_UI import GradioUI
 # Create the search tool instance
 search_tool = DuckDuckGoSearchTool()
 
+image_generation_tool = load_tool("agents-course/text-to-image", trust_remote_code=True)
+
 @tool
 def my_custom_tool(city: str) -> str:
     """A comprehensive meteorological tool that dynamically looks up coordinates for ANY city worldwide, 
