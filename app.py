@@ -10,31 +10,6 @@ from Gradio_UI import GradioUI
 # Create the search tool instance
 search_tool = DuckDuckGoSearchTool()
 
-image_generation_tool = load_tool("agents-course/text-to-image", trust_remote_code=True)
-
-@tool
-def generate_and_save_image(prompt: str) -> str:
-    """A tool that generates an image based on a prompt and saves it as a viewable file.
-
-    Args:
-        prompt: The detailed textual description of the image to generate.
-
-    Returns:
-        str: The file path to the saved image so the user interface can display it.
-    """
-    # 1. Run your existing image generation tool
-    raw_image_container = image_generation_tool(prompt)
-    
-    # 2. Extract the actual underlying PIL image object from the smolagents wrapper
-    actual_image = raw_image_container.image
-    
-    # 3. Save it to your Space's temporary disk
-    output_path = "generated_output.png"
-    actual_image.save(output_path)
-    
-    # 4. Return the path string so Gradio can render it seamlessly!
-    return os.path.abspath(output_path)
-
 @tool
 def my_custom_tool(city: str) -> str:
     """A comprehensive meteorological tool that dynamically looks up coordinates for ANY city worldwide, 
@@ -129,7 +104,7 @@ with open("prompts.yaml", 'r') as stream:
     
 agent = CodeAgent(
     model=model,
-    tools=[final_answer,search_tool,generate_and_save_image,my_custom_tool], ## add your tools here (don't remove final answer)
+    tools=[final_answer,search_tool,my_custom_tool], ## add your tools here (don't remove final answer)
     max_steps=6,
     verbosity_level=1,
     grammar=None,
