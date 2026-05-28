@@ -7,16 +7,62 @@ from tools.final_answer import FinalAnswerTool
 
 from Gradio_UI import GradioUI
 
-# Below is an example of a tool that does nothing. Amaze us with your creativity !
 @tool
-def my_custom_tool(arg1:str, arg2:int)-> str: #it's import to specify the return type
-    #Keep this format for the description / args / args description but feel free to modify the tool
-    """A tool that does nothing yet 
+def sun_safety_advisor(city: str) -> str:
+    """A comprehensive meteorological tool that dynamically looks up coordinates for ANY city worldwide, 
+    fetches its live UV Index, and provides precise sun safety and skin protection advice.
     Args:
-        arg1: the first argument
-        arg2: the second argument
+        city: The name of any global town or city (e.g., 'Kolkata', 'Paris', 'Los Angeles', 'Nairobi').
     """
-    return "What magic will you build ?"
+    try:
+        # Step 1: Dynamic Geocoding (Translate city name to latitude and longitude)
+        geo_url = f"https://geocoding-api.open-meteo.com/v1/search?name={city}&count=1&language=en&format=json"
+        geo_response = requests.get(geo_url).json()
+        geo_results = geo_response.get("results", [])
+        
+        if not geo_results:
+            return f"The Weatherman Radar could not locate '{city}'. Please check the spelling and try again."
+            
+        # Extract location specifics from the top search result
+        location_data = geo_results[0]
+        lat = location_data.get("latitude")
+        lon = location_data.get("longitude")
+        country = location_data.get("country", "Unknown Country")
+        resolved_name = location_data.get("name", city.title())
+
+        # Step 2: Fetch Live UV Metrics using the freshly acquired coordinates
+        uv_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=uv_index,is_day"
+        uv_response = requests.get(uv_url).json()
+        current_data = uv_response.get("current", {})
+        
+        uv_index = current_data.get("uv_index", 0.0)
+        is_day = current_data.get("is_day", 1)
+        
+        # If it's night time at the location, UV exposure is non-existent
+        if is_day == 0:
+            return f"☀️ Live Sun Safety Report for {resolved_name} ({country}):\n- It is currently night time there. The UV Index is 0.0.\n- Action Required: No sun protection needed!"
+            
+        # Step 3: Mathematical risk categorization based on World Health Organization metrics
+        if uv_index <= 2.0:
+            risk = "Low Risk"
+            protection = "Safe to stay outside! Minimal protection needed. Wear sunglasses if it's exceptionally bright."
+        elif uv_index <= 5.0:
+            risk = "Moderate Risk"
+            protection = "Sun protection required. Apply SPF 15+ sunscreen, wear a hat, and seek shade during midday hours."
+        elif uv_index <= 7.0:
+            risk = "High Risk"
+            protection = "Protection essential! Apply SPF 30+ sunscreen every 2 hours. Reduce time in direct sunlight between 11 AM and 4 PM."
+        elif uv_index <= 10.0:
+            risk = "Very High Risk"
+            protection = "Dangerous conditions. SPF 50+ sunscreen is mandatory. Wear protective clothing, a wide-brimmed hat, and avoid direct exposure."
+        else:
+            risk = "Extreme Risk"
+            protection = "Extreme hazard! Skin can burn in minutes. Stay indoors if possible. If outside, maximize shade and use maximum SPF protection."
+            
+        return f"☀️ Live Sun Safety Report for {resolved_name} ({country}):\n- Coordinates: Lat {lat}, Lon {lon}\n- Current UV Index: {uv_index} ({risk})\n- Action Required: {protection}"
+        
+    except Exception as e:
+        return f"Unable to establish a connection with the meteorological network: {str(e)}"   
 
 @tool
 def get_current_time_in_timezone(timezone: str) -> str:
@@ -55,7 +101,7 @@ with open("prompts.yaml", 'r') as stream:
     
 agent = CodeAgent(
     model=model,
-    tools=[final_answer], ## add your tools here (don't remove final answer)
+    tools=[final_answer,DuckDuckGoSearchTool,get_current_time_in_timezone,image_generation_tool,sun_safety_advisor], ## add your tools here (don't remove final answer)
     max_steps=6,
     verbosity_level=1,
     grammar=None,
