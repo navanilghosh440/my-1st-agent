@@ -7,6 +7,9 @@ from tools.final_answer import FinalAnswerTool
 
 from Gradio_UI import GradioUI
 
+# Create the search tool instance
+search_tool = DuckDuckGoSearchTool()
+
 @tool
 def my_custom_tool(city: str) -> str:
     """A comprehensive meteorological tool that dynamically looks up coordinates for ANY city worldwide, 
@@ -101,7 +104,7 @@ with open("prompts.yaml", 'r') as stream:
     
 agent = CodeAgent(
     model=model,
-    tools=[final_answer,DuckDuckGoSearchTool, my_custom_tool], ## add your tools here (don't remove final answer)
+    tools=[final_answer,search_tool,image_generation_tool,my_custom_tool], ## add your tools here (don't remove final answer)
     max_steps=6,
     verbosity_level=1,
     grammar=None,
