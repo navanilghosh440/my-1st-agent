@@ -8,7 +8,7 @@ from tools.final_answer import FinalAnswerTool
 from Gradio_UI import GradioUI
 
 @tool
-def sun_safety_advisor(city: str) -> str:
+def my_custom_tool(city: str) -> str:
     """A comprehensive meteorological tool that dynamically looks up coordinates for ANY city worldwide, 
     fetches its live UV Index, and provides precise sun safety and skin protection advice.
     Args:
@@ -101,7 +101,7 @@ with open("prompts.yaml", 'r') as stream:
     
 agent = CodeAgent(
     model=model,
-    tools=[final_answer,DuckDuckGoSearchTool,get_current_time_in_timezone,image_generation_tool,sun_safety_advisor], ## add your tools here (don't remove final answer)
+    tools=[final_answer, DuckDuckGoSearchTool, get_current_time_in_timezone, my_custom_tool], ## add your tools here (don't remove final answer)
     max_steps=6,
     verbosity_level=1,
     grammar=None,
