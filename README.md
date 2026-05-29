@@ -1,12 +1,3 @@
----
-title: First Agent Template
-emoji: ⚡
-colorFrom: pink
-colorTo: yellow
-sdk: gradio
-sdk_version: 5.23.1
-app_file: app.py
-pinned: false
 # my-1st-agent
 
 This repository contains my hands-on work for Unit 1 of the Hugging Face Agents Course. 
